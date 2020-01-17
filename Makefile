@@ -4,13 +4,13 @@
 PGM_SRCS = rhd.c
 PGM_OBJS = $(PGM_SRCS:.c=.o)
 PGM  = rhd
-PGM_REL  = 0.1.7
+PGM_REL  = 0.1.8
 PGM_FILES = $(PGM_SRCS) $(PGM).1 Makefile LICENSE.txt README.txt
 
 CC = gcc
 CFLAGS = -g -O2 -Wall -Wshadow -Wpointer-arith -Wcast-qual \
          -Wmissing-declarations -Wmissing-prototypes -W \
-         -DPGM_REL='"$(PGM_REL)"'
+         -DHD_REL='"$(PGM_REL)"'
 
 .c.o:
 	$(CC) $(CFLAGS) -c $<

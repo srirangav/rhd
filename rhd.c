@@ -1,8 +1,8 @@
 /*
-   rhd.c - Ranga's hex dump 
+   rhd.c - Ranga's hex dump
    $Id: rhd.c 8 2005-06-18 05:40:25Z ranga $
 
-   Copyright (c) 2003-2017 Sriranga Veeraraghavan <ranga@alum.berkeley.edu>
+   Copyright (c) 2003-2019 Sriranga Veeraraghavan <ranga@alum.berkeley.edu>
 
    Permission is hereby granted, free of charge, to any person
    obtaining a copy of this software and associated documentation
@@ -34,10 +34,6 @@
 #include <unistd.h>
 #include <limits.h>
 #include <stdarg.h>
-
-/* defines */
-
-#define HD_FNAME_STDIN "-"
 
 /* enums */
 
@@ -73,14 +69,23 @@ enum {
 /* version id */
 
 #ifdef HD_REL
-static char *g_version = HD_REL;
+const char *g_version = HD_REL;
 #else
-static char *g_version = "$Rev: 9 $";
+const char *g_version = "0.0.1";
 #endif /* HD_REL */
+
+/* file name for reading from stdin */
+
+const char *HD_FNAME_STDIN = "-";
+
+/* copyright */
+
+const char *g_copyright =
+    "Copyright (c) 2003-2019 Sriranga Veeraraghavan <ranga@alum.berkeley.edu>.  See LICENSE.txt.";
 
 /* lookup table for hex values */
 
-static char *g_hex_table[] = {
+const char *g_hex_table[] = {
     "00", "01", "02", "03", "04", "05", "06", "07",
     "08", "09", "0a", "0b", "0c", "0d", "0e", "0f",
     "10", "11", "12", "13", "14", "15", "16", "17",
@@ -100,8 +105,8 @@ static char *g_hex_table[] = {
     "80", "81", "82", "83", "84", "85", "86", "87",
     "88", "89", "8a", "8b", "8c", "8d", "8e", "8f",
     "90", "91", "92", "93", "94", "95", "96", "97",
-    "98", "99", "9a", "9b", "9c", "9d", "9e", "9f", 
-    "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7", 
+    "98", "99", "9a", "9b", "9c", "9d", "9e", "9f",
+    "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7",
     "a8", "a9", "aa", "ab", "ac", "ad", "ae", "af",
     "b0", "b1", "b2", "b3", "b4", "b5", "b6", "b7",
     "b8", "b9", "ba", "bb", "bc", "bd", "be", "bf",
@@ -117,14 +122,14 @@ static char *g_hex_table[] = {
 
 /* prototypes */
 
-static int  hexdump (FILE *outfp, 
+static int  hexdump (FILE *outfp,
                      char *fname,
                      unsigned long offset,
                      long len,
                      unsigned short int cpl,
                      unsigned short int flags);
 static int  safechar (char c);
-static int  print_error (FILE *stream, 
+static int  print_error (FILE *stream,
                          const char *fmt, ...);
 static void print_usage (char *cmd);
 
@@ -133,9 +138,9 @@ static void print_usage (char *cmd);
 /* print_error - prints a formatted error message */
 
 static int
-print_error (FILE *stream, 
+print_error (FILE *stream,
              const char *fmt, ...)
-{   
+{
     int rc;
     va_list ap;
 
@@ -156,7 +161,7 @@ print_usage (char *cmd)
     fprintf(stderr,
             "Usage: %s [options] [files]\n\n",
             (cmd == NULL || *cmd == '\0' ? "hd" : cmd));
-    fprintf(stderr, 
+    fprintf(stderr,
             "Where [options] are:\n\n");
     fprintf(stderr,
             "  -%c [chars]  \tdump [chars] chars per line\n",
@@ -187,14 +192,14 @@ print_usage (char *cmd)
 
 /* safechar - Given a char, returns a "safe" (printable) version of
               that char. If the char is "unsafe", '.' is returned */
-   
+
 static int
 safechar (char c)
 {
     if (c == '\t') {
         return ' ';
     }
-    
+
     return (c >= ' ' && c <= '~' ? c : '.');
 }
 
@@ -202,11 +207,11 @@ safechar (char c)
              upto [len] bytes with [cpl] chars per line. */
 
 static int
-hexdump (FILE *outfp, 
-         char *fname, 
-         unsigned long offset, 
-         long len, 
-         unsigned short int cpl, 
+hexdump (FILE *outfp,
+         char *fname,
+         unsigned long offset,
+         long len,
+         unsigned short int cpl,
          unsigned short int flags)
 {
     unsigned char *rawchars = NULL, *buf2 = NULL, *ucp = NULL;
@@ -222,7 +227,7 @@ hexdump (FILE *outfp,
     if (cpl <= 0) {
         return -1;
     }
-  
+
     if (outfp == NULL) {
         outfp = stdout;
     }
@@ -231,7 +236,7 @@ hexdump (FILE *outfp,
        the file pointer, otherwise fopen the file and use that as the
        file pointer */
 
-    if (fname == NULL || *fname == '\0' || 
+    if (fname == NULL || *fname == '\0' ||
         strcmp(fname,HD_FNAME_STDIN) == 0) {
         fp = stdin;
     } else {
@@ -260,16 +265,16 @@ hexdump (FILE *outfp,
 
             return -1;
         }
-        
+
         pos += offset;
-    } 
+    }
 
     /* if a length is specified, set the ending position */
 
     if (len > 0) {
         end = pos + len;
     }
-    
+
     /* allocate memory for the read buffer (rawchars) and the ascii
        printout buffer */
 
@@ -282,7 +287,7 @@ hexdump (FILE *outfp,
     cpl /= 2;
 
     /* allocate memory for reading in the file's contents */
-    
+
     if (((rawchars = malloc(sizeof(char) * size_rawchars)) == NULL) ||
         (((buf2 = malloc(sizeof(char) * size_buf2))) == NULL)) {
 
@@ -297,7 +302,7 @@ hexdump (FILE *outfp,
         if (fp != stdin) {
             fclose(fp);
         }
-        
+
         return -1;
     }
 
@@ -306,11 +311,11 @@ hexdump (FILE *outfp,
     while (!ferror(fp) && !feof(fp)) {
 
         /* update the current position */
-    
+
         pos += numread;
-        
+
         /* stop dumping when the requested end position has been reached */
-        
+
         if (end > 0 && pos > end) {
             break;
         }
@@ -323,25 +328,25 @@ hexdump (FILE *outfp,
 
         /* figure out the number of chars to read (maybe fewer than
            size_rawchars near the end of the requested range) */
-    
+
         toread = size_rawchars;
         k = (size_t)(end - pos);
         if (end > 0 && k < size_rawchars) {
             toread = k;
         }
-        
+
         /* read the bytes */
 
         if ((numread = fread(rawchars, sizeof(char), toread, fp)) == 0) {
             break;
         }
-        
+
         /* print the current position, unless HD_FLAG_NOPOS was given */
-    
+
         if (!(flags && ((flags | HD_FLAG_NOPOS) == flags))) {
             fprintf(outfp,"%08lx: ",(unsigned long int)pos);
         }
-        
+
         /* convert the characters in rawchars to hex values using the
            g_hex_table table */
 
@@ -352,14 +357,14 @@ hexdump (FILE *outfp,
                     "%s %s",
                     g_hex_table[*ucp],
                     (i + 1 == cpl && cpl % 2 == 0 ? " " : ""));
-            
+
             /* convert the char to a "safe" (printable) value */
-            
+
             buf2[i] = safechar(rawchars[i]);
         }
-    
+
         /* print padding so that output is nicely formatted */
-    
+
         if (numread < size_rawchars) {
             for (i = 0, j = size_rawchars - numread; i < j; i++) {
                 fprintf(outfp,
@@ -369,7 +374,7 @@ hexdump (FILE *outfp,
                          cpl % 2 == 0 ? " " : ""));
             }
         }
-    
+
         /* print the ascii version of the bytes, unless HD_FLAG_NOSTR is
            given */
 
@@ -385,7 +390,7 @@ hexdump (FILE *outfp,
     if (fp != stdin) {
         fclose(fp);
     }
-    
+
     if (buf2) {
         free(buf2);
     }
@@ -426,23 +431,23 @@ main (int argc, char **argv)
 
     while ((ch = getopt(argc,argv,optstr)) != -1) {
         switch (ch) {
-            
+
             case HD_OPT_NOSTR:
 
                 if (!(flags && ((flags | HD_FLAG_NOSTR) == flags))) {
                     flags |= HD_FLAG_NOSTR;
                 }
                 break;
-                
+
             case HD_OPT_NOPOS:
-                
+
                 if (!(flags && ((flags | HD_FLAG_NOPOS) == flags))) {
                     flags |= HD_FLAG_NOPOS;
                 }
                 break;
-                
+
             case HD_OPT_CPL:
-                
+
                 if (optarg && *optarg != '\0') {
                     errno = 0;
                     ulval = strtoul(optarg,&ep,0);
@@ -459,9 +464,9 @@ main (int argc, char **argv)
                     err++;
                 }
                 break;
-                
+
             case HD_OPT_START:
-                
+
                 if (optarg && optarg != '\0') {
                     errno = 0;
                     ulval = strtoul(optarg,&ep,0);
@@ -478,7 +483,7 @@ main (int argc, char **argv)
                     err++;
                 }
                 break;
-                
+
             case HD_OPT_END:
 
                 if (optarg && optarg != '\0' && have_len == 0) {
@@ -504,9 +509,9 @@ main (int argc, char **argv)
                     err++;
                 }
                 break;
-                
+
             case HD_OPT_LEN:
-                
+
                 if (optarg && *optarg != '\0' && have_end == 0) {
                     errno = 0;
                     len = strtol(optarg,&ep,0);
@@ -529,20 +534,20 @@ main (int argc, char **argv)
                     err++;
                 }
                 break;
-                
+
             case HD_OPT_VERS:
 
                 ver = 1;
                 break;
-                
+
             case HD_OPT_HELP1:
             case HD_OPT_HELP2:
 
                 help = 1;
                 break;
-                
+
             default:
-                
+
                 print_error(stderr,"Unknown option: -%c\n",ch);
                 err++;
         }
@@ -553,10 +558,13 @@ main (int argc, char **argv)
     }
 
     if (ver) {
-        fprintf(stdout,"Version: %s\n",g_version);
+        fprintf(stdout,"%s\nVersion: %s\n%s\n",
+            argv[0],
+            g_version,
+            g_copyright);
         exit(0);
     }
-  
+
     if (help) {
         print_usage(argv[0]);
         exit(0);
@@ -565,7 +573,7 @@ main (int argc, char **argv)
     if (have_len && have_end) {
         err++;
     }
-    
+
     if (err) {
         print_usage(argv[0]);
         exit(1);
@@ -573,7 +581,7 @@ main (int argc, char **argv)
 
     argc -= optind;
     argv += optind;
-  
+
     if (have_end) {
         len = offset_end - offset_start;
         if (len < 0) {
@@ -586,7 +594,7 @@ main (int argc, char **argv)
     /* if no file is specified, dump STDIN
        if 1 file is specified, dump that file
        if more than 1 file is specified, dump each file, with a separator */
-    
+
     if (argc == 0) {
         hexdump(stdout,NULL,offset_start,len,cpl,flags);
     } else if (argc == 1) {
