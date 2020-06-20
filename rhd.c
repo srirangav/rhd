@@ -295,6 +295,10 @@ hexdump (FILE *outfp,
             free(rawchars);
         }
 
+        if (buf2) {
+            free(buf2);
+        }
+
         print_error(stderr,
                     "Cannot allocate memory: %s\n",
                     strerror(errno));
