@@ -3,7 +3,7 @@
 PGM_SRCS = rhd.c
 PGM_OBJS = $(PGM_SRCS:.c=.o)
 PGM  = rhd
-PGM_REL  = 0.1.9
+PGM_REL  = 0.1.10
 PGM_FILES = $(PGM_SRCS) $(PGM).1 Makefile LICENSE.txt README.txt
 
 CC = gcc
@@ -12,12 +12,11 @@ CC = gcc
 # https://developers.redhat.com/blog/2018/03/21/compiler-and-linker-flags-gcc/
 
 CFLAGS = -g -grecord-gcc-switches -O2 -pipe \
-	 -Wall -Wshadow -Wpointer-arith -Wcast-qual \
+	 -W -Wall -Wextra -Wshadow -Wpointer-arith -Wcast-qual \
 	 -Wmissing-declarations -Wmissing-prototypes \
 	 -Werror=format-security -Werror=implicit-function-declaration \
-	 -W -DHD_REL='"$(PGM_REL)"' -D_FORTIFY_SOURCE=2 \
-	 -D_GLIBCXX_ASSERTIONS -fasynchronous-unwind-tables \
-	 -fexceptions -fpic -fstack-protector-all \
+	 -DHD_REL='"$(PGM_REL)"' -D_FORTIFY_SOURCE=2 -D_GLIBCXX_ASSERTIONS \
+	 -fasynchronous-unwind-tables -fexceptions -fpic -fstack-protector-all \
 	 -fstack-protector-strong -fcf-protection -fwrapv
 
 .c.o:
